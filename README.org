@@ -29,7 +29,6 @@ Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64
 
 # apt install nasm
 # pacman -S nasm
-
 #+end_src
 
 * Programming
@@ -140,5 +139,13 @@ ld hello_world.o -o hello_world
 #+begin_src shell
 
 ./hello_world
+
+#+end_src
+
+4. If you are using the =hello_world.asm= example the ouput should look like:
+
+#+begin_src
+
+hello_world
 
 #+end_src
