@@ -6,8 +6,8 @@ These are my notes for programming in assembly, as opposed to a high-level langu
 
 * Requirements:
 
-1. Unix-like operating system
-2. x86_64 compatible processor. To verify, run uname:
+- Unix-like operating system
+- x86_64 compatible processor. To verify, run uname:
 
 #+begin_src shell
 
@@ -23,7 +23,7 @@ Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64
 
 #+end_src
 
-3. The =nasm= compiler. Use these commands to install on debian and arch respectively:
+- The =nasm= compiler. Use these commands to install on debian and arch respectively:
 
 #+begin_src
 
@@ -118,7 +118,7 @@ Note that these are the registers for 64 bit architecture. In a 32 bit machine, 
 
 We will use the nasm compiler we installed earlier
 
-1. First step is producing the object code; *nasm* is used to do this:
+- First step is producing the object code; *nasm* is used to do this:
 
 #+begin_src shell
 
@@ -126,7 +126,7 @@ nasm -f elf64 -o hello_world.o hello_world.asm
 
 #+end_src
 
-2. Next, use =ld=, the *GNU Linker* to make this executable:
+- Next, use =ld=, the *GNU Linker* to make this executable:
 
 #+begin_src shell
 
@@ -134,7 +134,7 @@ ld hello_world.o -o hello_world
 
 #+end_src
 
-3. Execute newly made file as usual:
+- Execute newly made file as usual:
 
 #+begin_src shell
 
@@ -142,7 +142,7 @@ ld hello_world.o -o hello_world
 
 #+end_src
 
-4. If you are using the =hello_world.asm= example the ouput should look like:
+- If you are using the =hello_world.asm= example the ouput should look like:
 
 #+begin_src
 
