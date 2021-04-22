@@ -9,28 +9,28 @@ These are my notes for programming in assembly, as opposed to a high-level langu
 1. Unix-like operating system
 2. x86_64 compatible processor. To verify, run uname:
 
-   #+begin_src shell
+#+begin_src shell
 
 uname -a
 
-  #+end_src
+#+end_src
 
    Sample output for compatible machine:
 
-   #+begin_src
+#+begin_src
 
 Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64 GNU/Linux
 
-   #+end_src
+#+end_src
 
 3. The =nasm= compiler. Use these commands to install on debian and arch respectively:
 
-   #+begin_src
+#+begin_src
 
 # apt install nasm
 # pacman -S nasm
 
-   #+end_src
+#+end_src
 
 * Programming
 
@@ -121,24 +121,24 @@ We will use the nasm compiler we installed earlier
 
 1. First step is producing the object code; *nasm* is used to do this:
 
-   #+begin_src shell
+#+begin_src shell
 
 nasm -f elf64 -o hello_world.o hello_world.asm
 
-   #+end_src
+#+end_src
 
 2. Next, use =ld=, the *GNU Linker* to make this executable:
 
-   #+begin_src shell
+#+begin_src shell
 
 ld hello_world.o -o hello_world
 
-   #+end_src
+#+end_src
 
 3. Execute newly made file as usual:
 
-   #+begin_src shell
+#+begin_src shell
 
 ./hello_world
 
-   #+end_src
+#+end_src
