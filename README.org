@@ -1,0 +1,144 @@
+#+TITLE: x86_64 Assembly Programming
+#+AUTHOR: Alexander Neville
+#+DESCRIPTION: Learning to program in assembly.
+
+These are my notes for programming in assembly, as opposed to a high-level language.
+
+* Requirements:
+
+1. Unix-like operating system
+2. x86_64 compatible processor. To verify, run uname:
+
+   #+begin_src shell
+
+uname -a
+
+  #+end_src
+
+   Sample output for compatible machine:
+
+   #+begin_src
+
+Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64 GNU/Linux
+
+   #+end_src
+
+3. The =nasm= compiler. Use these commands to install on debian and arch respectively:
+
+   #+begin_src
+
+# apt install nasm
+# pacman -S nasm
+
+   #+end_src
+
+* Programming
+
+This section covers how to create programs in assembly.
+
+** Sections
+
+Assembly code can be broken into three =sections=:
+
+|---------+---------------------------------------|
+| section | purpose                               |
+|---------+---------------------------------------|
+| data    | hold constants and program parameters |
+| bss     | hold variable declaraions             |
+| text    | contains progam code                  |
+|---------+---------------------------------------|
+
+The syntax for a section looks like this:
+
+#+begin_src asm
+
+section.data
+
+#+end_src
+
+A =text= section must contain a reference to =_start=, signifying the start of the program:
+
+#+begin_src asm
+
+section.text
+
+    global _start
+
+_start:
+
+#+end_src
+
+** Registers
+
+In x86_64 architecture, each register is 64 bits in size. Smaller registers can be emulated by using part of a 64 bit register. These registers can be refered to with short names, shown below:
+
+|------+-------+-------+--------|
+| 8bit | 16bit | 32bit | 64 bit |
+|------+-------+-------+--------|
+| al   | ax    | eax   | rax    |
+| bl   | bx    | ebx   | rbx    |
+| cl   | cx    | ecx   | rcx    |
+| dl   | dx    | edx   | rdx    |
+| sil  | si    | esi   | rsi    |
+| dil  | di    | edi   | rdi    |
+| bpl  | bp    | ebp   | rbp    |
+| spl  | sp    | esp   | rsp    |
+| r8b  | r8w   | r8d   | r8     |
+| r9b  | r9w   | r9d   | r9     |
+| r10b | r10w  | r10d  | r10    |
+| r11b | r11w  | r11d  | r11    |
+| r12b | r12w  | r12d  | r12    |
+| r13b | r13w  | r13d  | r13    |
+| r14b | r14w  | r14d  | r14    |
+| r15b | r15w  | r15d  | r15    |
+|------+-------+-------+--------|
+
+** Syscalls
+
+A =syscall= is a request that is made, asking the OS kernal to service the program. These calls are OS-dependent and each type of call has an associated ID. In an assembly code program, a =syscall= will also have a list of arguements.
+
+*Constructing a Syscall:*
+
+The registers involved in a =syscall= are in this table, where the ID is found in =rax= and all other arguements are found in the following registers:
+
+|-----------+----------|
+| arguement | register |
+|-----------+----------|
+|        ID | rax      |
+|         1 | rdi      |
+|         2 | rsi      |
+|         3 | rdx      |
+|         4 | r10      |
+|         5 | r8       |
+|         6 | r9       |
+|-----------+----------|
+
+Note that these are the registers for 64 bit architecture. In a 32 bit machine, registers begining with an 'e' will be used. For a full list of available syscalls, look here: https://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/
+
+* Compiling
+
+We will use the nasm compiler we installed earlier
+
+1. First step is producing the object code; *nasm* is used to do this:
+
+   #+begin_src shell
+
+nasm -f elf64 -o hello_world.o hello_world.asm
+
+   #+end_src
+
+2. Next, use =ld=, the *GNU Linker* to make this executable:
+
+   #+begin_src shell
+
+ld hello_world.o -o hello_world
+
+   #+end_src
+
+3. Execute newly made file as usual:
+
+   #+begin_src shell
+
+./hello_world
+
+   #+end_src
