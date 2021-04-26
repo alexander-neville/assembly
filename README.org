@@ -1,13 +1,14 @@
+
 #+TITLE: x86_64 Assembly Programming
 #+AUTHOR: Alexander Neville
 #+DESCRIPTION: Learning to program in assembly.
 
-These are my notes for programming in assembly, as opposed to a high-level language.
+These are my notes for programming in assembly, instead of a high level language.
 
-* Requirements:
+* Requirements
 
 - Unix-like operating system
-- x86_64 compatible processor. To verify, run uname:
+- x86_64 compatible processor. To verify, run uname e.g.
 
 #+begin_src shell
 
@@ -20,7 +21,6 @@ uname -a
 #+begin_src
 
 Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64 GNU/Linux
-
 #+end_src
 
 - The =nasm= compiler. Use these commands to install on debian and arch respectively:
@@ -29,6 +29,7 @@ Linux arch 5.11.15-arch1-2 #1 SMP PREEMPT Sat, 17 Apr 2021 00:22:30 +0000 x86_64
 
 # apt install nasm
 # pacman -S nasm
+
 #+end_src
 
 * Programming
@@ -39,27 +40,29 @@ This section covers how to create programs in assembly.
 
 Assembly code can be broken into three =sections=:
 
-|---------+---------------------------------------|
-| section | purpose                               |
-|---------+---------------------------------------|
-| data    | hold constants and program parameters |
-| bss     | hold variable declaraions             |
-| text    | contains progam code                  |
-|---------+---------------------------------------|
+|---------+-----------------------------------------------------------|
+| section | purpose                                                   |
+|---------+-----------------------------------------------------------|
+| data    | hold constants and program parameters, before compilation |
+| bss     | reserve memory to use for new data                        |
+| text    | contains progam code                                      |
+|---------+-----------------------------------------------------------|
 
 The syntax for a section looks like this:
 
 #+begin_src asm
 
-section.data
+section .data
+section .bss
+section .text
 
 #+end_src
 
-A =text= section must contain a reference to =_start=, signifying the start of the program:
+A =text= section must contain a reference to =_start=, signifying the start of the program, needed for the /linker/ to create executable machine code. This is a /label/, identifying a piece of code.
 
 #+begin_src asm
 
-section.text
+section .text
 
     global _start
 
@@ -69,7 +72,7 @@ _start:
 
 ** Registers
 
-In x86_64 architecture, each register is 64 bits in size. Smaller registers can be emulated by using part of a 64 bit register. These registers can be refered to with short names, shown below:
+In x86_64 architecture, each register is 64 bits in size. Smaller registers can be emulated by using part of a 64 bit register. These registers are refered to with short names, shown in this table.
 
 |------+-------+-------+--------|
 | 8bit | 16bit | 32bit | 64 bit |
@@ -92,13 +95,102 @@ In x86_64 architecture, each register is 64 bits in size. Smaller registers can 
 | r15b | r15w  | r15d  | r15    |
 |------+-------+-------+--------|
 
+** Pointers
+
+Pointers are another type of on-chip register. They are used to store memory addresses of instructions. These are the basic pointers:
+
+|--------+--------+--------+--------------------------------------------------|
+| 16 bit | 32 bit | 64 bit | purpose                                          |
+|--------+--------+--------+--------------------------------------------------|
+| IP     | EIP    | RIP    | holds address of next instruction to fetch       |
+| SP     | ESP    | RSP    | holds address of the top of the address stack    |
+| BP     | EBP    | RBP    | holds address of the bottom of the address stack |
+|--------+--------+--------+--------------------------------------------------|
+
+Many of these registers are used to manage control flow, which is typically linear from top to bottom. During normal operation, the /RIP/ will be incremented by 1 for every instruction that is run, making the program move on.
+
+** Flags
+
+Flags - like registers - are a type of on-chip data storage. Unlike other registers, a flag holds a single bit. Therefore, there are two possible values for each bit: /true/ or /false/. Each flag is part of a larger register, the /status register/. Like other registers, flags are reffered to with unique identifiers within assembly programs.
+
+|--------+------------------|
+| symbol | purpose          |
+|--------+------------------|
+| CF     | carry bit        |
+| PF     | parity bit       |
+| ZF     | zero             |
+| SF     | sign bit         |
+| OF     | overflow         |
+| AF     | adjust           |
+| IF     | interupt enabled |
+|--------+------------------|
+
+** Mathematical Operations
+
+Here is a table of availiale operations. /rXX/ means any 64 bit register. /b/ could be a register or a hard coded value.
+
+|-----------+------------+-----------------|
+| operation | parameters | description     |
+|-----------+------------+-----------------|
+| add       | rXX, b     | rXX = rXX + b   |
+| sub       | rXX, b     | rXX = rXX - b   |
+| mul       | rXX        | rax = rax * rXX |
+| div       | rXX        | rax = rax / rXX |
+| neg       | rXX        | rXX = - rXX     |
+| inc       | rXX        | rXX = rXX + 1   |
+| dec       | rXX        | rXX = rXX -1    |
+|-----------+------------+-----------------|
+
+** Labels & Jumps
+
+Labels are used to store the address of an instruction in memory. Labels are used in conjunction with jump commands to manipulate the control flow of a program. *_start* is a label. When the jump command is encountered, the address of the instruction associated with the label is loaded into the *RIP* and hence the control flow is changed. The syntax of a jump is shown below:
+
+#+begin_src asm
+
+_start:
+
+    jmp _start
+
+#+end_src
+
+This code performs an infinite loop.
+
+** Comparisons & Conditional Jumps
+
+Used with jump commands, comparisons can introduce complex flow control into assembly programs. Comparisons are always made with at least one register. (so long as the other arguement is a value) eg.
+
+#+begin_src asm
+
+cmp r15, 37
+cmp r15, r14
+
+#+end_src
+
+After a comparison is made, flags are set in the status register. /Conditional jumps/ are made depending on the state of these flags, so a jump command may directly follow a comparison operation. Here are some common conditional jump commands:
+
+|-----------------+------------------------|
+| symbol (signed) | purpose                |
+|-----------------+------------------------|
+| je              | jump if a = b          |
+| jne             | jump if a != b         |
+| jg              | jump if a > b          |
+| jge             | jump if a >= b         |
+| jl              | jump if a < b          |
+| jle             | jump if a <= b         |
+| jz              | jump if a = 0          |
+| jnz             | jump if a != 0         |
+| jo              | overflow occurred      |
+| jno             | overflow did not occur |
+|-----------------+------------------------|
+
+** Calls & Subroutines
 ** Syscalls
 
-A =syscall= is a request that is made, asking the OS kernal to service the program. These calls are OS-dependent and each type of call has an associated ID. In an assembly code program, a =syscall= will also have a list of arguements.
+A =syscall= is a request that is made, asking the OS kernal to service the program. These calls are OS-dependent and each type of call has an associated ID. In an assembly code program, a =syscall= will also have parameters. Arguements are passed by filling certain registers in order.
 
 *Constructing a Syscall:*
 
-The registers involved in a =syscall= are in this table, where the ID is found in =rax= and all other arguements are found in the following registers:
+The registers involved in a =syscall= are in this table, where the /ID/ is found in =rax= and all subsequent arguements are found in the following registers:
 
 |-----------+----------|
 | arguement | register |
@@ -147,5 +239,4 @@ ld hello_world.o -o hello_world
 #+begin_src
 
 hello_world
-
 #+end_src
