@@ -9,10 +9,20 @@ section .text
 
 _start:
 
-    mov rax, 237                ; put the number to print in rax, used for division
+    mov r13, 1                  ; the current number
+    mov r14, 0                  ; the last number
+    mov r15, 0                  ; initialise a counter
+
+_loop:
+
+    mov r12, r13                ; backup the value in r13
+    add r13, r14                ; add the previous number to this number
+    mov r14, r12                     ; pop the value on the stack into r14, the previous number
+    mov rax, r13                     ; move the current number into rax
     call _print                 ; call the print subroutine
-    mov rax, 43                 ; put the number to print in rax
-    call _print                 ; call the print subroutine
+    inc r15                     ; increment the counter
+    cmp r15, 10
+    jl _loop                    ; loop if iterations < 10
     call _exit                  ; call the exit subroutine
 
 _print:                         ; define a subroutine which prints the value in rax.
